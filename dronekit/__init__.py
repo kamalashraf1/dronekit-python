@@ -1057,8 +1057,18 @@ class Vehicle(HasObservers):
         self._vy = None
         self._vz = None
 
+
+        self.error_tracker = 0
+
         @self.on_message('STATUSTEXT')
         def statustext_listener(self, name, m):
+            ## Using the Status text Message for getting more information
+            incoming_message = m.text.strip()
+            message_level = m.severity
+            if message_level <=2:
+                self.error_tracker += 1
+            if incoming_message.count("GPS glitch") > 0 or incoming_message.count("EKF variance") > 0 :
+                self.error_tracker += 2
             # Log the STATUSTEXT on the autopilot logger, with the correct severity
             self._autopilot_logger.log(
                 msg=m.text.strip(),
